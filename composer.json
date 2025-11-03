@@ -1,0 +1,22 @@
+{
+    "name": "hexlet/code",
+    "description": "test project #2",
+    "authors": [
+        {
+            "name": "murYG",
+            "email": "mur@jinr.ru"
+        }
+    ],
+	"license": ["proprietary"],
+	"bin": [
+		"bin/gendiff"
+	],
+    "autoload": {
+        "psr-4": {
+            "Hexlet\\Code\\": "src/"
+        }
+    },
+    "require": {
+        "docopt/docopt": "^1.0"
+    }
+}
