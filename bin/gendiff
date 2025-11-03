@@ -1,8 +1,6 @@
 #!/usr/bin/env php
 <?php
-use \Docopt\Response;
-use function Gendiff\Gendiff\parse;
-use function Gendiff\Gendiff\printData;
+use function Differ\Differ\genDiff;
 
 $autoloadPath1 = __DIR__ . '/../../../autoload.php';
 $autoloadPath2 = __DIR__ . '/../vendor/autoload.php';
@@ -32,11 +30,8 @@ Options:
 DOCOPT;
 
 $result = Docopt::handle($doc, array('version'=>'1.0'));
-foreach ($result as $k=>$v)
-    echo $k.': '.json_encode($v).PHP_EOL;
+//foreach ($result as $k=>$v)
+//    echo $k.': '.json_encode($v).PHP_EOL;
 
-$result1 = parse($result->args['<firstFile>']);
-$result2 = parse($result->args['<secondFile>']);
-
-printData($result1, $result->args['--format']);
-printData($result2, $result->args['--format']);
+$diff = genDiff($result['<firstFile>'], $result['<secondFile>']);
+print_r($diff);
