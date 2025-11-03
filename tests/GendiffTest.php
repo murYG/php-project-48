@@ -16,6 +16,8 @@ class GendiffTest extends TestCase
     {
         $this->assertStringEqualsFile($this->getFixtureFullPath('expected1.txt'), genDiff($this->getFixtureFullPath('file1.json'), $this->getFixtureFullPath('file2.json')));
 		$this->assertStringEqualsFile($this->getFixtureFullPath('expected2.txt'), genDiff($this->getFixtureFullPath('file3.json'), $this->getFixtureFullPath('file2.json')));
+		$this->assertStringEqualsFile($this->getFixtureFullPath('expected3.txt'), genDiff($this->getFixtureFullPath('file2.json'), $this->getFixtureFullPath('file1.json')));
+		$this->assertEquals("", genDiff($this->getFixtureFullPath('file4.json'), $this->getFixtureFullPath('file4.json')));
     }
 	
 	public function getFixtureFullPath(string $fixtureName): string

@@ -35,7 +35,11 @@ function genDiff(string $pathToFile1, string $pathToFile2): string
         return $acc;
     }, []);
 
-    return "{\n" . implode("\n", $arResult) . "\n}\n";
+    if (count($arResult) === 0) {
+        return "";
+    }
+
+    return "{\n" . implode("\n", $arResult) . "\n}";
 }
 
 function getDiffFormatted($key, $value, $sign)
