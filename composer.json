@@ -14,7 +14,11 @@
     "autoload": {
         "psr-4": {
             "Hexlet\\Code\\": "src/"
-        }
+        },
+        "files": [
+			"vendor/docopt/docopt/src/docopt.php",
+            "src/Gendiff.php"
+        ]
     },
     "require": {
         "docopt/docopt": "^1.0"
