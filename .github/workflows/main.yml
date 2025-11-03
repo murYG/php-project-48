@@ -7,11 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: make install
       - run: make lint
       - run: make test-coverage
-   build-sonarqube:
-        needs: build-main
+  build-sonarqube:
+    needs: build-main
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
