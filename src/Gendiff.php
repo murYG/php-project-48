@@ -4,37 +4,33 @@ namespace Differ\Differ;
 
 use Funct;
 
-function parse(string $filePath)
+function parse(string $filePath): array
 {
-    $file = file_get_contents($filePath);
-    $result = json_decode($file);
+    $fileContents = file_get_contents($filePath);
+    $jsonData = json_decode($fileContents);
 
-    return get_object_vars($result);
+    return get_object_vars($jsonData);
 }
 
 function genDiff(string $pathToFile1, string $pathToFile2): string
 {
-    $result1 = parse($pathToFile1);
-    $result2 = parse($pathToFile2);
+    $data1 = parse($pathToFile1);
+    $data2 = parse($pathToFile2);
 
-    $keys = array_unique(array_merge(array_keys($result1), array_keys($result2)));
+    $keys = array_unique(array_merge(array_keys($data1), array_keys($data2)));
     $keys = Funct\Collection\sortBy($keys, fn ($value) => $value);
 
-    $arResult = array_reduce($keys, function ($acc, $key) use ($result1, $result2) {
-        if (!isset($result1[$key])) {
-            $acc[] = getDiffFormatted($key, $result2[$key], "+");
-        } elseif (!isset($result2[$key])) {
-            $acc[] = getDiffFormatted($key, $result1[$key], "-");
-        }
-
-        if (isset($result1[$key]) && isset($result2[$key])) {
-            if ($result1[$key] === $result2[$key]) {
-                $acc[] = getDiffFormatted($key, $result1[$key], " ");
-            } else {
-                $acc[] = getDiffFormatted($key, $result1[$key], "-");
-                $acc[] = getDiffFormatted($key, $result2[$key], "+");
-            }
-        }
+    $arResult = array_reduce($keys, function ($acc, $key) use ($data1, $data2) {
+        if (!isset($data1[$key])) {
+            $acc[] = getDiffFormatted($key, $data2[$key], "+");
+        } elseif (!isset($data2[$key])) {
+            $acc[] = getDiffFormatted($key, $data1[$key], "-");
+        } elseif ($data1[$key] === $data2[$key]) {
+            $acc[] = getDiffFormatted($key, $data1[$key], " "); 
+        } else {
+			$acc[] = getDiffFormatted($key, $data1[$key], "-");
+			$acc[] = getDiffFormatted($key, $data2[$key], "+");
+		}
 
         return $acc;
     }, []);
