@@ -26,17 +26,18 @@ function genDiff(string $pathToFile1, string $pathToFile2): string
         } elseif (!isset($data2[$key])) {
             $acc[] = getDiffFormatted($key, $data1[$key], "-");
         } elseif ($data1[$key] === $data2[$key]) {
-            $acc[] = getDiffFormatted($key, $data1[$key], " "); 
+            $acc[] = getDiffFormatted($key, $data1[$key], " ");
         } else {
-			$acc[] = getDiffFormatted($key, $data1[$key], "-");
-			$acc[] = getDiffFormatted($key, $data2[$key], "+");
-		}
+            $acc[] = getDiffFormatted($key, $data1[$key], "-");
+            $acc[] = getDiffFormatted($key, $data2[$key], "+");
+        }
 
         return $acc;
     }, []);
 
     return "{\n" . implode("\n", $arResult) . "\n}\n";
 }
+
 function getDiffFormatted($key, $value, $sign)
 {
     $value = var_export($value, true);
