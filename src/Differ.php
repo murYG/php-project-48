@@ -4,21 +4,26 @@ namespace Differ\Differ;
 
 use Funct;
 
-function parse(string $filePath): array
-{
-    $fileContents = file_get_contents($filePath);
-    $jsonData = json_decode($fileContents);
-
-    return get_object_vars($jsonData);
-}
+use function Differ\Parsers\parse;
+use function Differ\Parsers\getFormat;
+use function Differ\Parsers\getData;
 
 function genDiff(string $pathToFile1, string $pathToFile2): string
 {
-    $data1 = parse($pathToFile1);
-    $data2 = parse($pathToFile2);
+    $result1 = parse($pathToFile1);
+    $result2 = parse($pathToFile2);
 
-    $keys = array_unique(array_merge(array_keys($data1), array_keys($data2)));
-    $keys = Funct\Collection\sortBy($keys, fn ($value) => $value);
+    if (getFormat($result1) !== getFormat($result2)) {
+        throw new \Exception('Different formats unsupported');
+    }
+
+    $data1 = getData($result1);
+    $data2 = getData($result2);
+
+    $keys = Funct\Collection\sortBy(
+        array_unique(array_merge(array_keys($data1), array_keys($data2))),
+        fn ($value) => $value
+    );
 
     $arResult = array_reduce($keys, function ($acc, $key) use ($data1, $data2) {
         if (!isset($data1[$key])) {
@@ -36,7 +41,7 @@ function genDiff(string $pathToFile1, string $pathToFile2): string
     }, []);
 
     if (count($arResult) === 0) {
-        return "";
+        return "{}";
     }
 
     return "{\n" . implode("\n", $arResult) . "\n}";

@@ -10,3 +10,4 @@
 
 ### Demo
 [![asciicast](https://asciinema.org/a/GuJFS5oqrjeYDg3EbkfrRmqnW.svg)](https://asciinema.org/a/GuJFS5oqrjeYDg3EbkfrRmqnW)
+[![asciicast](https://asciinema.org/a/mLgQYr0Z4TZQxNOnbFlKwyqI6.svg)](https://asciinema.org/a/mLgQYr0Z4TZQxNOnbFlKwyqI6)
