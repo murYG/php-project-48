@@ -4,6 +4,12 @@ namespace Differ\Parsers;
 
 use Symfony\Component\Yaml\Yaml;
 
+const SUPPORTED_EXTENSIONS = [
+        'json' => 'JSON',
+        'yml' => 'YAML',
+        'yaml' => 'YAML'
+    ];
+
 function parse(string $filePath): array
 {
     if (!file_exists($filePath)) {
@@ -11,54 +17,58 @@ function parse(string $filePath): array
     }
 
     $pathInfo = pathinfo($filePath);
-    $format = supportedFormat()[$pathInfo['extension']] ?? '';
-    if ($format === '') {
+    $fileType = SUPPORTED_EXTENSIONS[$pathInfo['extension']] ?? '';
+    if ($fileType === '') {
         throw new \Exception("*.{$pathInfo['extension']} files not supported");
     }
 
     $fileContents = file_get_contents($filePath);
 
-    return ['format' => $format, 'data' => formatData($format, $filePath, $fileContents)];
+    $func = __NAMESPACE__ . "\\parse$fileType";
+    if (!function_exists($func)) {
+        throw new \Exception("Unsupported file type: $fileType");
+    }
+
+    $data = $func($fileContents);
+    if ($data === null) {
+        throw new \Exception("Invalid $fileType in $filePath");
+    }
+
+    return ['fileType' => $fileType, 'data' => objectToArray($data)];
 }
 
-function supportedFormat()
+function parseJSON(string $fileContents): object | null
 {
-    return [
-        'json' => 'JSON',
-        'yml' => 'YAML',
-        'yaml' => 'YAML'
-    ];
+    $data = json_decode($fileContents);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return null;
+    }
+
+    return $data;
 }
 
-function formatData($format, $filePath, $fileContents)
+function parseYAML(string $fileContents): object | null
 {
-    $func = [
-        'JSON' => function ($format, $filePath, $fileContents) {
-            $data = json_decode($fileContents);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new \Exception("Invalid $format in $filePath");
-            }
+    $data = Yaml::parse($fileContents, Yaml::PARSE_OBJECT_FOR_MAP);
+    if (!is_object($data)) {
+        return null;
+    }
 
-            return get_object_vars($data);
-        },
-        'YAML' => function ($format, $filePath, $fileContents) {
-            $data = Yaml::parse($fileContents);
-            if (!is_array($data)) {
-                throw new \Exception("Invalid $format in $filePath");
-            }
-            return $data;
-        }
-    ];
-
-    return call_user_func($func[$format], $format, $filePath, $fileContents);
+    return $data;
 }
 
-function getFormat($parseResult)
+function objectToArray(object $data): array
 {
-    return $parseResult['format'];
+    $arr = get_object_vars($data);
+    return array_map(fn ($item) => is_object($item) ? objectToArray($item) : $item, $arr);
 }
 
-function getData($parseResult)
+function getFileType(array $parseResult): string
+{
+    return $parseResult['fileType'];
+}
+
+function getData(array $parseResult): array
 {
     return $parseResult['data'];
 }

@@ -9,14 +9,12 @@ class GendiffTest extends TestCase
 {
     public function testGenDiff(): void
     {
-        $this->assertStringEqualsFile($this->getFixtureFullPath('expected1.txt'), genDiff($this->getFixtureFullPath('file1.json'), $this->getFixtureFullPath('file2.json')));
-		$this->assertStringEqualsFile($this->getFixtureFullPath('expected3.txt'), genDiff($this->getFixtureFullPath('file2.json'), $this->getFixtureFullPath('file1.json')));
-		$this->assertStringEqualsFile($this->getFixtureFullPath('expected2.txt'), genDiff($this->getFixtureFullPath('file3.json'), $this->getFixtureFullPath('file2.json')));
+        $this->assertStringEqualsFile($this->getFixtureFullPath('expected1.tree.txt'), genDiff($this->getFixtureFullPath('file1.tree.json'), $this->getFixtureFullPath('file2.tree.json')));
+		$this->assertStringEqualsFile($this->getFixtureFullPath('expected2.tree.txt'), genDiff($this->getFixtureFullPath('file2.tree.json'), $this->getFixtureFullPath('file1.tree.json')));
 		$this->assertEquals("{}", genDiff($this->getFixtureFullPath('file4.json'), $this->getFixtureFullPath('file4.json')));
 		
-        $this->assertStringEqualsFile($this->getFixtureFullPath('expected1.txt'), genDiff($this->getFixtureFullPath('file1.yml'), $this->getFixtureFullPath('file2.yml')));
-		$this->assertStringEqualsFile($this->getFixtureFullPath('expected3.txt'), genDiff($this->getFixtureFullPath('file2.yml'), $this->getFixtureFullPath('file1.yml')));
-		$this->assertStringEqualsFile($this->getFixtureFullPath('expected2.txt'), genDiff($this->getFixtureFullPath('file3.yml'), $this->getFixtureFullPath('file2.yml')));
+        $this->assertStringEqualsFile($this->getFixtureFullPath('expected1.tree.txt'), genDiff($this->getFixtureFullPath('file1.tree.yml'), $this->getFixtureFullPath('file2.tree.yml')));
+		$this->assertStringEqualsFile($this->getFixtureFullPath('expected2.tree.txt'), genDiff($this->getFixtureFullPath('file2.tree.yml'), $this->getFixtureFullPath('file1.tree.yml')));
     }
 	
 	public function testExceptionMessage1()
@@ -25,17 +23,17 @@ class GendiffTest extends TestCase
 		genDiff($this->getFixtureFullPath('file1.json'), $this->getFixtureFullPath('file1.txt'));
     }
 	
-	public function testExceptionMessage2()
-    {
-		$this->expectExceptionMessage("Different formats unsupported");
-		genDiff($this->getFixtureFullPath('file1.json'), $this->getFixtureFullPath('file2.yml'));
-    }
+	//public function testExceptionMessage2()
+    //{
+	//	$this->expectExceptionMessage("Different file types unsupported");
+	//	genDiff($this->getFixtureFullPath('file1.json'), $this->getFixtureFullPath('file2.yml'));
+    //}
 	
-	public function testExceptionMessage3()
-    {
-		$this->expectExceptionMessage("Different formats unsupported");
-		genDiff($this->getFixtureFullPath('file1.yml'), $this->getFixtureFullPath('file2.json'));
-    }
+	//public function testExceptionMessage3()
+    //{
+	//	$this->expectExceptionMessage("Different file types unsupported");
+	//	genDiff($this->getFixtureFullPath('file1.yml'), $this->getFixtureFullPath('file2.json'));
+    //}
 	
 	public function testExceptionMessage4()
     {

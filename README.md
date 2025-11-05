@@ -9,5 +9,11 @@
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=murYG_php-project-48&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=murYG_php-project-48)
 
 ### Demo
+	step 4
 [![asciicast](https://asciinema.org/a/GuJFS5oqrjeYDg3EbkfrRmqnW.svg)](https://asciinema.org/a/GuJFS5oqrjeYDg3EbkfrRmqnW)
+
+	step 5
 [![asciicast](https://asciinema.org/a/mLgQYr0Z4TZQxNOnbFlKwyqI6.svg)](https://asciinema.org/a/mLgQYr0Z4TZQxNOnbFlKwyqI6)
+
+	step 7
+[![asciicast](https://asciinema.org/a/z6hefmEtK4a60aHHc1orjzdLe.svg)](https://asciinema.org/a/z6hefmEtK4a60aHHc1orjzdLe)
