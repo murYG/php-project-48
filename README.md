@@ -10,13 +10,13 @@
 
 ### Demo
 	step 4
-	[![asciicast](https://asciinema.org/a/GuJFS5oqrjeYDg3EbkfrRmqnW.svg)](https://asciinema.org/a/GuJFS5oqrjeYDg3EbkfrRmqnW)
+[![asciicast](https://asciinema.org/a/GuJFS5oqrjeYDg3EbkfrRmqnW.svg)](https://asciinema.org/a/GuJFS5oqrjeYDg3EbkfrRmqnW)
 
 	step 5
-	[![asciicast](https://asciinema.org/a/mLgQYr0Z4TZQxNOnbFlKwyqI6.svg)](https://asciinema.org/a/mLgQYr0Z4TZQxNOnbFlKwyqI6)
+[![asciicast](https://asciinema.org/a/mLgQYr0Z4TZQxNOnbFlKwyqI6.svg)](https://asciinema.org/a/mLgQYr0Z4TZQxNOnbFlKwyqI6)
 
 	step 7
-	[![asciicast](https://asciinema.org/a/z6hefmEtK4a60aHHc1orjzdLe.svg)](https://asciinema.org/a/z6hefmEtK4a60aHHc1orjzdLe)
+[![asciicast](https://asciinema.org/a/z6hefmEtK4a60aHHc1orjzdLe.svg)](https://asciinema.org/a/z6hefmEtK4a60aHHc1orjzdLe)
 
 	step 8
-	[![asciicast](https://asciinema.org/a/9OcYd2shCl02QYYfukFxP4OSM.svg)](https://asciinema.org/a/9OcYd2shCl02QYYfukFxP4OSM)
+[![asciicast](https://asciinema.org/a/9OcYd2shCl02QYYfukFxP4OSM.svg)](https://asciinema.org/a/9OcYd2shCl02QYYfukFxP4OSM)
