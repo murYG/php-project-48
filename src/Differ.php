@@ -14,10 +14,6 @@ function genDiff(string $pathToFile1, string $pathToFile2, $format = 'stylish'):
     $result1 = parse($pathToFile1);
     $result2 = parse($pathToFile2);
 
-    //if (getFileType($result1) !== getFileType($result2)) {
-    //    throw new \Exception('Different file types unsupported');
-    //}
-
     $data1 = getData($result1);
     $data2 = getData($result2);
 
@@ -34,9 +30,9 @@ function genDiffData(array $data1, array $data2): array
 
     return array_reduce($keys, function ($acc, $key) use ($data1, $data2) {
         if (!array_key_exists($key, $data1)) {
-            $acc[] = genDiffDataElement($key, $data2[$key], 1);
+            $acc[] = genDiffDataElement($key, 1, $data2[$key]);
         } elseif (!array_key_exists($key, $data2)) {
-            $acc[] = genDiffDataElement($key, $data1[$key], -1);
+            $acc[] = genDiffDataElement($key, -1, $data1[$key]);
         } else {
             $value1 = $data1[$key];
             $value2 = $data2[$key];
@@ -44,10 +40,10 @@ function genDiffData(array $data1, array $data2): array
             if (isAssoc($value1) && isAssoc($value2)) {
                 $acc[] = genDiffDataNode($key, genDiffData($value1, $value2));
             } elseif ($data1[$key] === $data2[$key]) {
-                $acc[] = genDiffDataElement($key, $data1[$key], 0);
+                $acc[] = genDiffDataElement($key, 0, $data1[$key]);
             } else {
-                $acc[] = genDiffDataElement($key, $data1[$key], -1);
-                $acc[] = genDiffDataElement($key, $data2[$key], 1);
+                $acc[] = genDiffDataElement($key, 2, $data2[$key], $data1[$key]);
+                //$acc[] = genDiffDataElement($key, $data2[$key], 1);
             }
         }
 
@@ -60,9 +56,15 @@ function genDiffDataNode(string $key, array $value): array
     return ['key' => $key, 'type' => 'node', 'children' => $value];
 }
 
-function genDiffDataElement(string $key, $value, int $action): array
+function genDiffDataElement(string $key, int $action, $value, $valuePrev = null): array
 {
-    return ['key' => $key, 'type' => 'element', 'action' => $action, 'value' => genDiffDataValue($value)];
+    return [
+        'key' => $key,
+        'type' => 'element',
+        'action' => $action,
+        'value' => genDiffDataValue($value),
+        'valuePrev' => genDiffDataValue($valuePrev)
+    ];
 }
 
 function genDiffDataValue($value)

@@ -8,62 +8,77 @@ use function Differ\Differ\isElement;
 const REPLACER = ' ';
 const REPLACER_COUNT = 4;
 const LEFT_SHIFT = "  ";
-const LEFT_SHIFT_COUNT = 2;
-const ACTION_VIEW = [1 => "+", 0 => " ", -1 => "-"];
+const LEFT_SHIFT_LENGTH = 2;
 
-function format($diffData): string
+function format(array $diffData): string
 {
     if (count($diffData) === 0) {
         return "{}";
     }
 
-    return "{\n" . array_reduce($diffData, function ($acc, $item) {
-        return $acc . stringifyDiff($item, 1) . "\n";
-    }, '') . "}";
+    return "{\n" . implode("\n", stringifyDiff($diffData, 1)) . "\n}";
 }
 
-function stringifyDiff($value, $depth): string
+function stringifyDiff($value, int $depth): array
 {
-    $prefixCurrent = str_repeat(REPLACER, $depth * REPLACER_COUNT - LEFT_SHIFT_COUNT);
+    return array_reduce($value, function ($acc, $item) use ($depth) {
+        if (isElement($item)) {
+            $acc[] = formatElement($item, $depth);
+            return $acc;
+        }
 
-    if (isElement($value)) {
-        return $prefixCurrent . formatElement($value, $depth);
-    }
+        $acc[] = formatNode($item, $depth) . " {";
 
-    $result = $prefixCurrent . LEFT_SHIFT . formatNode($value) . " {\n";
+        $prefixPrevious = getPrefix($depth);
 
-    $prefixPrevious = str_repeat(REPLACER, $depth * REPLACER_COUNT);
-
-    $children = $value['children'];
-    return $result . array_reduce($children, function ($acc, $item) use ($depth) {
-        return $acc . stringifyDiff($item, $depth + 1) . "\n";
-    }, "") . "$prefixPrevious}";
+        $children = $item['children'];
+        return [...$acc, ...stringifyDiff($children, $depth + 1), "$prefixPrevious}"];
+    }, []);
 }
 
-function formatNode($diffNode)
+function formatNode(array $diffNode, int $depth): string
 {
-    return "{$diffNode['key']}:";
+    return getPrefix($depth, LEFT_SHIFT_LENGTH, LEFT_SHIFT) . "{$diffNode['key']}:";
 }
 
-function formatElement($diffElement, $depth)
+function formatElement(array $diffElement, int $depth): string
 {
+    $prefix = getPrefix($depth, LEFT_SHIFT_LENGTH);
+
     $keyStr = $diffElement['key'];
-    $actionStr = ACTION_VIEW[$diffElement['action']];
     $valueStr = formatValue($diffElement['value'], $depth + 1);
+    $valuePrevStr = formatValue($diffElement['valuePrev'], $depth + 1);
 
-    return "$actionStr $keyStr: $valueStr";
+    return getActionView($diffElement['action'], $keyStr, $valueStr, $valuePrevStr, $prefix);
 }
 
-function formatValue($value, $depth): string
+function formatValue($value, int $depth): string
 {
     if (!is_array($value)) {
         return toString($value);
     }
 
-    $prefixCurrent = str_repeat(REPLACER, $depth * REPLACER_COUNT);
-    $prefixPrevious = str_repeat(REPLACER, ($depth - 1) * REPLACER_COUNT);
+    $prefixCurrent = getPrefix($depth);
+    $prefixPrevious = getPrefix($depth - 1);
 
     return "{\n" . array_reduce($value, function ($acc, $item) use ($depth, $prefixCurrent) {
         return $acc . "$prefixCurrent{$item['key']}: " . formatValue($item['value'], $depth + 1) . "\n";
     }, "") . "$prefixPrevious}";
+}
+
+function getPrefix(int $depth, int $shiftLen = 0, string $shift = ''): string
+{
+    return str_repeat(REPLACER, $depth * REPLACER_COUNT - $shiftLen) . $shift;
+}
+
+function getActionView($action, $key, $value1, $value2, $prefix)
+{
+    $arAction = [
+        1 => "$prefix+ $key: $value1",
+        0 => "$prefix  $key: $value1",
+        -1 => "$prefix- $key: $value1",
+        2 => "$prefix- $key: $value2\n$prefix+ $key: $value1"
+    ];
+
+    return $arAction[$action] ?? '';
 }

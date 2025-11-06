@@ -12,7 +12,7 @@ function format($format, $diffData): string
     return $func($diffData);
 }
 
-function toString($value)
+function toString($value, $symbol = "'")
 {
-    return trim(var_export($value, true), "'");
+    return trim(var_export($value, true), $symbol);
 }
