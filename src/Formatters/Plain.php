@@ -25,7 +25,7 @@ function stringifyDiff($value, int $depth, $key = ''): array
             return $acc;
         }
 
-        $result = $key . formatNode($item, $depth);
+        $result = $key . formatNode($item);
 
         $children = $item['children'];
         return [...$acc, ...stringifyDiff($children, $depth + 1, $result)];
