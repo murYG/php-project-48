@@ -26,7 +26,7 @@ function parse(string $filePath): array
 
     $func = __NAMESPACE__ . "\\parse$fileType";
     if (!function_exists($func)) {
-        throw new \Exception("Unsupported file type: $fileType");
+        throw new \Exception("Parsing $fileType not implemented");
     }
 
     $data = $func($fileContents);

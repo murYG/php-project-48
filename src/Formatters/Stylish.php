@@ -23,16 +23,15 @@ function stringifyDiff($value, int $depth): array
 {
     return array_reduce($value, function ($acc, $item) use ($depth) {
         if (isElement($item)) {
-            $acc[] = formatElement($item, $depth);
-            return $acc;
+            return [...$acc, formatElement($item, $depth)];
         }
 
-        $acc[] = formatNode($item, $depth) . " {";
+        $result = formatNode($item, $depth) . " {";
 
         $prefixPrevious = getPrefix($depth);
 
         $children = $item['children'];
-        return [...$acc, ...stringifyDiff($children, $depth + 1), "$prefixPrevious}"];
+        return [...$acc, $result, ...stringifyDiff($children, $depth + 1), "$prefixPrevious}"];
     }, []);
 }
 

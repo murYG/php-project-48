@@ -17,7 +17,7 @@ function genDiff(string $pathToFile1, string $pathToFile2, $format = 'stylish'):
     $data1 = getData($result1);
     $data2 = getData($result2);
 
-    $diffData = genDiffData($data1, $data2);
+    $diffData = array_values(genDiffData($data1, $data2));
     return format($format, $diffData);
 }
 
@@ -28,32 +28,29 @@ function genDiffData(array $data1, array $data2): array
         fn ($value) => $value
     );
 
-    return array_reduce($keys, function ($acc, $key) use ($data1, $data2) {
+    return array_map(function ($key) use ($data1, $data2) {
         if (!array_key_exists($key, $data1)) {
-            $acc[] = genDiffDataElement($key, 1, $data2[$key]);
+            return genDiffDataElement($key, 1, $data2[$key]);
         } elseif (!array_key_exists($key, $data2)) {
-            $acc[] = genDiffDataElement($key, -1, $data1[$key]);
+            return genDiffDataElement($key, -1, $data1[$key]);
         } else {
             $value1 = $data1[$key];
             $value2 = $data2[$key];
 
             if (isAssoc($value1) && isAssoc($value2)) {
-                $acc[] = genDiffDataNode($key, genDiffData($value1, $value2));
+                return genDiffDataNode($key, genDiffData($value1, $value2));
             } elseif ($data1[$key] === $data2[$key]) {
-                $acc[] = genDiffDataElement($key, 0, $data1[$key]);
+                return genDiffDataElement($key, 0, $data1[$key]);
             } else {
-                $acc[] = genDiffDataElement($key, 2, $data2[$key], $data1[$key]);
-                //$acc[] = genDiffDataElement($key, $data2[$key], 1);
+                return genDiffDataElement($key, 2, $data2[$key], $data1[$key]);
             }
         }
-
-        return $acc;
-    }, []);
+    }, $keys);
 }
 
 function genDiffDataNode(string $key, array $value): array
 {
-    return ['key' => $key, 'type' => 'node', 'children' => $value];
+    return ['key' => $key, 'type' => 'node', 'children' => array_values($value)];
 }
 
 function genDiffDataElement(string $key, int $action, $value, $valuePrev = null): array

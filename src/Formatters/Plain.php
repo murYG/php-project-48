@@ -20,9 +20,10 @@ function stringifyDiff($value, int $depth, $key = ''): array
         if (isElement($item)) {
             $str = formatElement($item, $key);
             if ($str !== '') {
-                $acc[] = $str;
+                return [...$acc, $str];
+            } else {
+                return $acc;
             }
-            return $acc;
         }
 
         $result = $key . formatNode($item);
