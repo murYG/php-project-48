@@ -87,6 +87,11 @@ function isElement($element): bool
     return is_array($element) && array_key_exists("type", $element) && $element['type'] === 'element';
 }
 
+function isComplexValue($element): bool
+{
+    return is_array($element) && array_key_exists("type", $element) && $element['type'] === 'value';
+}
+
 function isAssoc($arr): bool
 {
     if (!is_array($arr) || count($arr) === 0) {
@@ -95,4 +100,40 @@ function isAssoc($arr): bool
 
     $keys = array_keys($arr);
     return Funct\Collection\some($keys, fn ($item) => !is_int($item));
+}
+
+function getKey($diffNodeElement): string
+{
+    return $diffNodeElement["key"];
+}
+
+function getChildren($diffNode): array
+{
+    if (!isNode($diffNode)) {
+        return null;
+    }
+
+    return $diffNode["children"];
+}
+
+function getAction($diffElement): int
+{
+    if (!isElement($diffElement)) {
+        return null;
+    }
+
+    return $diffElement["action"];
+}
+
+function getValue($diffElement, $previous = false)
+{
+    if (!isElement($diffElement) && !isComplexValue($diffElement)) {
+        return null;
+    }
+
+    if ($previous === true) {
+        return isElement($diffElement) ? $diffElement["valuePrev"] : null;
+    }
+
+    return $diffElement["value"];
 }

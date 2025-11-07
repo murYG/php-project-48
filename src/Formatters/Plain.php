@@ -4,6 +4,10 @@ namespace Differ\Formatters\Plain;
 
 use function Differ\Formatters\toString;
 use function Differ\Differ\isElement;
+use function Differ\Differ\getKey;
+use function Differ\Differ\getChildren;
+use function Differ\Differ\getAction;
+use function Differ\Differ\getValue;
 
 function format(array $diffData): string
 {
@@ -28,23 +32,24 @@ function stringifyDiff($value, int $depth, $key = ''): array
 
         $result = $key . formatNode($item);
 
-        $children = $item['children'];
+        $children = getChildren($item);
         return [...$acc, ...stringifyDiff($children, $depth + 1, $result)];
     }, []);
 }
 
 function formatNode(array $diffNode): string
 {
-    return "{$diffNode['key']}.";
+    return getKey($diffNode) . ".";
 }
 
 function formatElement(array $diffElement, $key): string
 {
-    $keyStr = $key . $diffElement['key'];
-    $valueStr = formatValue($diffElement['value']);
-    $valuePrevStr = formatValue($diffElement['valuePrev']);
+    $prefix = $key . getKey($diffElement);
 
-    return getActionView($diffElement['action'], $keyStr, $valueStr, $valuePrevStr);
+    $valueStr = formatValue(getValue($diffElement));
+    $valuePrevStr = formatValue(getValue($diffElement, true));
+
+    return getActionView(getAction($diffElement), $prefix, $valueStr, $valuePrevStr);
 }
 
 function formatValue($value): string
