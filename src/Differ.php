@@ -99,6 +99,10 @@ function isAssoc(mixed $arr): bool
 
 function getKey(array $diffNodeElement): string
 {
+    if (!array_key_exists("key", $diffNodeElement)) {
+        throw new \Exception("Incorrect structure");
+    }
+
     return $diffNodeElement["key"];
 }
 
@@ -111,10 +115,10 @@ function getChildren(array $diffNode): array
     return $diffNode["children"];
 }
 
-function getAction(array $diffElement): int | null
+function getAction(array $diffElement): int
 {
     if (!isElement($diffElement)) {
-        return null;
+        throw new \Exception("Incorrect structure");
     }
 
     return $diffElement["action"];
