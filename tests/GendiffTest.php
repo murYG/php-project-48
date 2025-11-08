@@ -38,8 +38,8 @@ class GendiffTest extends TestCase
 
     public function testExceptionMessageExtNotSupported()
     {
-        $this->expectExceptionMessage("*.txt files not supported");
-        genDiff($this->getFixtureFullPath('file1.tree.json'), $this->getFixtureFullPath('file1.txt'));
+        $this->expectExceptionMessage("*.html files not supported");
+        genDiff($this->getFixtureFullPath('file1.tree.json'), $this->getFixtureFullPath('file1.html'));
     }
 
     public function testExceptionMessageFileNotFound()
@@ -52,6 +52,12 @@ class GendiffTest extends TestCase
     {
         $this->expectExceptionMessage("Unsupported format: html");
         genDiff($this->getFixtureFullPath('file1.tree.json'), $this->getFixtureFullPath('file2.tree.json'), "html");
+    }
+
+    public function testExceptionMessageParsingNotImplemented()
+    {
+        $this->expectExceptionMessage("Parsing *.txt files not implemented");
+        genDiff($this->getFixtureFullPath('file1.tree.json'), $this->getFixtureFullPath('file1.txt'));
     }
 
     public function testExceptionMessageInvalidJson()

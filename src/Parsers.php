@@ -7,7 +7,8 @@ use Symfony\Component\Yaml\Yaml;
 const SUPPORTED_EXTENSIONS = [
         'json' => 'JSON',
         'yml' => 'YAML',
-        'yaml' => 'YAML'
+        'yaml' => 'YAML',
+        'txt' => 'TXT'
     ];
 
 function parse(string $filePath): array
@@ -17,16 +18,20 @@ function parse(string $filePath): array
     }
 
     $pathInfo = pathinfo($filePath);
-    $fileType = SUPPORTED_EXTENSIONS[$pathInfo['extension']] ?? '';
+    $extension = $pathInfo['extension'] ?? '';
+    $fileType = SUPPORTED_EXTENSIONS[$extension] ?? '';
     if ($fileType === '') {
-        throw new \Exception("*.{$pathInfo['extension']} files not supported");
+        throw new \Exception("*.$extension files not supported");
     }
 
     $fileContents = file_get_contents($filePath);
+    if ($fileContents === false) {
+        throw new \Exception('Unexpected error');
+    }
 
     $func = __NAMESPACE__ . "\\parse$fileType";
     if (!function_exists($func)) {
-        throw new \Exception("Parsing $fileType not implemented");
+        throw new \Exception("Parsing *.$extension files not implemented");
     }
 
     $data = $func($fileContents);

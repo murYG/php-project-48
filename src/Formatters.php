@@ -2,7 +2,7 @@
 
 namespace Differ\Formatters;
 
-function format($format, $diffData): string
+function format(string $format, array $diffData): string
 {
     $func = __NAMESPACE__ . "\\$format\\format";
     if (!function_exists($func)) {
@@ -12,7 +12,7 @@ function format($format, $diffData): string
     return $func($diffData);
 }
 
-function toString($value, $symbol = "'")
+function toString(mixed $value, string $symbol = "'"): string
 {
     return $value === null ? 'null' : trim(var_export($value, true), $symbol);
 }

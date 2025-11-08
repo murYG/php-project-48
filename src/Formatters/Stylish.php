@@ -23,7 +23,7 @@ function format(array $diffData): string
     return "{\n" . implode("\n", stringifyDiff($diffData, 1)) . "\n}";
 }
 
-function stringifyDiff($value, int $depth): array
+function stringifyDiff(array $value, int $depth): array
 {
     return array_reduce($value, function ($acc, $item) use ($depth) {
         if (isElement($item)) {
@@ -54,7 +54,7 @@ function formatElement(array $diffElement, int $depth): string
     return getActionView(getAction($diffElement), getKey($diffElement), $valueStr, $valuePrevStr, $prefix);
 }
 
-function formatValue($value, int $depth): string
+function formatValue(mixed $value, int $depth): string
 {
     if (!is_array($value)) {
         return toString($value);
@@ -74,7 +74,7 @@ function getPrefix(int $depth, int $shiftLen = 0, string $shift = ''): string
     return str_repeat(REPLACER, $depth * REPLACER_COUNT - $shiftLen) . $shift;
 }
 
-function getActionView($action, $key, $value1, $value2, $prefix)
+function getActionView(int $action, string $key, string $value1, string $value2, string $prefix): string
 {
     $arAction = [
         1 => "$prefix+ $key: $value1",

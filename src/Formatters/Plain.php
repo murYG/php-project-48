@@ -18,7 +18,7 @@ function format(array $diffData): string
     return implode("\n", stringifyDiff($diffData, 1));
 }
 
-function stringifyDiff($value, int $depth, string $key = ''): array
+function stringifyDiff(array $value, int $depth, string $key = ''): array
 {
     return array_reduce($value, function ($acc, $item) use ($depth, $key) {
         if (isElement($item)) {
@@ -52,7 +52,7 @@ function formatElement(array $diffElement, string $nodeKey): string
     return getActionView(getAction($diffElement), $prefix, $valueStr, $valuePrevStr);
 }
 
-function formatValue($value): string
+function formatValue(mixed $value): string
 {
     if (is_array($value)) {
         return '[complex value]';

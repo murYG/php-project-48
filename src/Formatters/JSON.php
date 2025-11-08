@@ -4,5 +4,10 @@ namespace Differ\Formatters\JSON;
 
 function format(array $diffData): string
 {
-    return json_encode($diffData);
+    $result = json_encode($diffData);
+    if ($result === false) {
+        throw new \Exception('Unexpected error');
+    }
+
+    return $result;
 }

@@ -5,10 +5,9 @@ namespace Differ\Differ;
 use Funct;
 
 use function Differ\Parsers\parse;
-use function Differ\Parsers\getData;
 use function Differ\Formatters\format;
 
-function genDiff(string $pathToFile1, string $pathToFile2, $format = 'stylish'): string
+function genDiff(string $pathToFile1, string $pathToFile2, string $format = 'stylish'): string
 {
     $result1 = parse($pathToFile1);
     $result2 = parse($pathToFile2);
@@ -49,7 +48,7 @@ function genDiffDataNode(string $key, array $value): array
     return ['key' => $key, 'type' => 'node', 'children' => array_values($value)];
 }
 
-function genDiffDataElement(string $key, int $action, $value, $valuePrev = null): array
+function genDiffDataElement(string $key, int $action, mixed $value, mixed $valuePrev = null): array
 {
     return [
         'key' => $key,
@@ -60,7 +59,7 @@ function genDiffDataElement(string $key, int $action, $value, $valuePrev = null)
     ];
 }
 
-function genDiffDataValue($value)
+function genDiffDataValue(mixed $value): mixed
 {
     if (!is_array($value)) {
         return $value;
@@ -73,22 +72,22 @@ function genDiffDataValue($value)
     );
 }
 
-function isNode($element): bool
+function isNode(array $element): bool
 {
-    return is_array($element) && array_key_exists("type", $element) && $element['type'] === 'node';
+    return array_key_exists("type", $element) && $element['type'] === 'node';
 }
 
-function isElement($element): bool
+function isElement(array $element): bool
 {
-    return is_array($element) && array_key_exists("type", $element) && $element['type'] === 'element';
+    return array_key_exists("type", $element) && $element['type'] === 'element';
 }
 
-function isComplexValue($element): bool
+function isComplexValue(array $element): bool
 {
-    return is_array($element) && array_key_exists("type", $element) && $element['type'] === 'value';
+    return array_key_exists("type", $element) && $element['type'] === 'value';
 }
 
-function isAssoc($arr): bool
+function isAssoc(mixed $arr): bool
 {
     if (!is_array($arr) || count($arr) === 0) {
         return false;
@@ -98,21 +97,21 @@ function isAssoc($arr): bool
     return Funct\Collection\some($keys, fn ($item) => !is_int($item));
 }
 
-function getKey($diffNodeElement): string
+function getKey(array $diffNodeElement): string
 {
     return $diffNodeElement["key"];
 }
 
-function getChildren($diffNode): array
+function getChildren(array $diffNode): array
 {
     if (!isNode($diffNode)) {
-        return null;
+        return [];
     }
 
     return $diffNode["children"];
 }
 
-function getAction($diffElement): int
+function getAction(array $diffElement): int | null
 {
     if (!isElement($diffElement)) {
         return null;
@@ -121,7 +120,7 @@ function getAction($diffElement): int
     return $diffElement["action"];
 }
 
-function getValue($diffElement, bool $previous = false)
+function getValue(array $diffElement, bool $previous = false): mixed
 {
     if (!isElement($diffElement) && !isComplexValue($diffElement)) {
         return null;
