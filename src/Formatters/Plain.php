@@ -18,7 +18,7 @@ function format(array $diffData): string
     return implode("\n", stringifyDiff($diffData, 1));
 }
 
-function stringifyDiff($value, int $depth, $key = ''): array
+function stringifyDiff($value, int $depth, string $key = ''): array
 {
     return array_reduce($value, function ($acc, $item) use ($depth, $key) {
         if (isElement($item)) {
@@ -42,9 +42,9 @@ function formatNode(array $diffNode): string
     return getKey($diffNode) . ".";
 }
 
-function formatElement(array $diffElement, $key): string
+function formatElement(array $diffElement, string $nodeKey): string
 {
-    $prefix = $key . getKey($diffElement);
+    $prefix = $nodeKey . getKey($diffElement);
 
     $valueStr = formatValue(getValue($diffElement));
     $valuePrevStr = formatValue(getValue($diffElement, true));
@@ -61,7 +61,7 @@ function formatValue($value): string
     }
 }
 
-function getActionView($action, $key, $value1, $value2)
+function getActionView(int $action, string $key, string $value1, string $value2): string
 {
     $arAction = [
         1 => "Property '$key' was added with value: $value1",

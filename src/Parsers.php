@@ -34,7 +34,7 @@ function parse(string $filePath): array
         throw new \Exception("Invalid $fileType in $filePath");
     }
 
-    return ['fileType' => $fileType, 'data' => objectToArray($data)];
+    return objectToArray($data);
 }
 
 function parseJSON(string $fileContents): object | null
@@ -61,14 +61,4 @@ function objectToArray(object $data): array
 {
     $arr = get_object_vars($data);
     return array_map(fn ($item) => is_object($item) ? objectToArray($item) : $item, $arr);
-}
-
-function getFileType(array $parseResult): string
-{
-    return $parseResult['fileType'];
-}
-
-function getData(array $parseResult): array
-{
-    return $parseResult['data'];
 }

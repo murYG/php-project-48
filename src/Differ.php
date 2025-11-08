@@ -5,7 +5,6 @@ namespace Differ\Differ;
 use Funct;
 
 use function Differ\Parsers\parse;
-use function Differ\Parsers\getFileType;
 use function Differ\Parsers\getData;
 use function Differ\Formatters\format;
 
@@ -14,10 +13,7 @@ function genDiff(string $pathToFile1, string $pathToFile2, $format = 'stylish'):
     $result1 = parse($pathToFile1);
     $result2 = parse($pathToFile2);
 
-    $data1 = getData($result1);
-    $data2 = getData($result2);
-
-    $diffData = array_values(genDiffData($data1, $data2));
+    $diffData = array_values(genDiffData($result1, $result2));
     return format($format, $diffData);
 }
 
@@ -125,7 +121,7 @@ function getAction($diffElement): int
     return $diffElement["action"];
 }
 
-function getValue($diffElement, $previous = false)
+function getValue($diffElement, bool $previous = false)
 {
     if (!isElement($diffElement) && !isComplexValue($diffElement)) {
         return null;
