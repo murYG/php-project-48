@@ -14,5 +14,5 @@ function format($format, $diffData): string
 
 function toString($value, $symbol = "'")
 {
-    return trim(var_export($value, true), $symbol);
+    return $value === null ? 'null' : trim(var_export($value, true), $symbol);
 }

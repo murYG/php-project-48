@@ -3,7 +3,7 @@
       - follow: false
         setting1: Value 1
       + setting2: 200
-      - setting3: NULL
+      - setting3: null
       + setting3: true
       - setting4: blah blah
       - setting5: {
