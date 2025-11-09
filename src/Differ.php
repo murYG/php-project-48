@@ -34,7 +34,7 @@ function getFileData(string $filePath): array
 
     $pathInfo = pathinfo($filePath);
     $extension = $pathInfo['extension'] ?? '';
-    if (!in_array($extension, SUPPORTED_EXTENSIONS)) {
+    if (!in_array($extension, SUPPORTED_EXTENSIONS, true)) {
         throw new \Exception("*.$extension files not supported");
     }
 
@@ -50,17 +50,17 @@ function getFileData(string $filePath): array
     ];
 }
 
-function getFileExtension($fileData)
+function getFileExtension(array $fileData): string
 {
     return $fileData['extension'];
 }
 
-function getFileContents($fileData)
+function getFileContents(array $fileData): string
 {
     return $fileData['contents'];
 }
 
-function getFilePath($fileData)
+function getFilePath(array $fileData): string
 {
     return $fileData['path'];
 }
