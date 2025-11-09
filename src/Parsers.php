@@ -4,66 +4,43 @@ namespace Differ\Parsers;
 
 use Symfony\Component\Yaml\Yaml;
 
-const SUPPORTED_EXTENSIONS = [
+use function Differ\Differ\getFileExtension;
+use function Differ\Differ\getFileContents;
+use function Differ\Differ\getFilePath;
+
+const SUPPORTED_TYPES = [
         'json' => 'JSON',
         'yml' => 'YAML',
         'yaml' => 'YAML',
         'txt' => 'TXT'
     ];
 
-function parse(string $filePath): array
+function parse(array $fileData): object
 {
-    if (!file_exists($filePath)) {
-        throw new \Exception("File $filePath not found");
-    }
-
-    $pathInfo = pathinfo($filePath);
-    $extension = $pathInfo['extension'] ?? '';
-    $fileType = SUPPORTED_EXTENSIONS[$extension] ?? '';
-    if ($fileType === '') {
-        throw new \Exception("*.$extension files not supported");
-    }
-
-    $fileContents = file_get_contents($filePath);
-    if ($fileContents === false) {
-        throw new \Exception('Unexpected error');
-    }
-
-    $func = __NAMESPACE__ . "\\parse$fileType";
-    if (!function_exists($func)) {
-        throw new \Exception("Parsing *.$extension files not implemented");
-    }
-
-    $data = $func($fileContents);
-    if ($data === null) {
-        throw new \Exception("Invalid $fileType in $filePath");
-    }
-
-    return objectToArray($data);
+    $fileType = SUPPORTED_TYPES[getFileExtension($fileData)] ?? '';
+    return match ($fileType) {
+        'JSON' => parseJSON($fileData),
+        'YAML' => parseYAML($fileData),
+        default  => throw new \Exception("Parsing $fileType not implemented")
+    };
 }
 
-function parseJSON(string $fileContents): object | null
+function parseJSON(array $fileData): object
 {
-    $data = json_decode($fileContents);
+    $result = json_decode(getFileContents($fileData));
     if (json_last_error() !== JSON_ERROR_NONE) {
-        return null;
+        throw new \Exception("Invalid JSON in " . getFilePath($fileData));
     }
 
-    return $data;
+    return $result;
 }
 
-function parseYAML(string $fileContents): object | null
+function parseYAML(array $fileData): object
 {
-    $data = Yaml::parse($fileContents, Yaml::PARSE_OBJECT_FOR_MAP);
-    if (!is_object($data)) {
-        return null;
+    $result = Yaml::parse(getFileContents($fileData), Yaml::PARSE_OBJECT_FOR_MAP);
+    if (!is_object($result)) {
+        throw new \Exception("Invalid YAML in " . getFilePath($fileData));
     }
 
-    return $data;
-}
-
-function objectToArray(object $data): array
-{
-    $arr = get_object_vars($data);
-    return array_map(fn ($item) => is_object($item) ? objectToArray($item) : $item, $arr);
+    return $result;
 }

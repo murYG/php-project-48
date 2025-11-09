@@ -2,58 +2,118 @@
 
 namespace Differ\Differ;
 
-use Funct;
-
+use function Funct\Collection\sortBy;
+use function Funct\Collection\some;
 use function Differ\Parsers\parse;
 use function Differ\Formatters\format;
 
+const SUPPORTED_EXTENSIONS = [
+    'json',
+    'yml',
+    'yaml',
+    'txt'
+];
+
 function genDiff(string $pathToFile1, string $pathToFile2, string $format = 'stylish'): string
 {
-    $result1 = parse($pathToFile1);
-    $result2 = parse($pathToFile2);
+    $fileData1 = getFileData($pathToFile1);
+    $fileData2 = getFileData($pathToFile2);
 
-    $diffData = array_values(genDiffData($result1, $result2));
+    $result1 = parse($fileData1);
+    $result2 = parse($fileData2);
+
+    $diffData = genDiffData($result1, $result2);
     return format($format, $diffData);
 }
 
-function genDiffData(array $data1, array $data2): array
+function getFileData(string $filePath): array
 {
-    $keys = Funct\Collection\sortBy(
+    if (!file_exists($filePath)) {
+        throw new \Exception("File $filePath not found");
+    }
+
+    $pathInfo = pathinfo($filePath);
+    $extension = $pathInfo['extension'] ?? '';
+    if (!in_array($extension, SUPPORTED_EXTENSIONS)) {
+        throw new \Exception("*.$extension files not supported");
+    }
+
+    $fileContents = file_get_contents($filePath);
+    if ($fileContents === false) {
+        throw new \Exception('Unexpected error');
+    }
+
+    return [
+        'extension' => $extension,
+        'contents' => $fileContents,
+        'path' => $filePath
+    ];
+}
+
+function getFileExtension($fileData)
+{
+    return $fileData['extension'];
+}
+
+function getFileContents($fileData)
+{
+    return $fileData['contents'];
+}
+
+function getFilePath($fileData)
+{
+    return $fileData['path'];
+}
+
+function genDiffData(object $data1, object $data2): array
+{
+    $arr1 = objectToArray($data1);
+    $arr2 = objectToArray($data2);
+
+    return genDiffDataRec($arr1, $arr2);
+}
+
+function genDiffDataRec(array $data1, array $data2): array
+{
+    $keys = array_values(sortBy(
         array_unique(array_merge(array_keys($data1), array_keys($data2))),
         fn ($value) => $value
-    );
+    ));
 
     return array_map(function ($key) use ($data1, $data2) {
         if (!array_key_exists($key, $data1)) {
-            return genDiffDataElement($key, 1, $data2[$key]);
+            return genDiffDataElement($key, "added", $data2[$key]);
         } elseif (!array_key_exists($key, $data2)) {
-            return genDiffDataElement($key, -1, $data1[$key]);
+            return genDiffDataElement($key, "deleted", $data1[$key]);
+        } elseif (isAssoc($data1[$key]) && isAssoc($data2[$key])) {
+            return genDiffDataNode($key, genDiffDataRec($data1[$key], $data2[$key]));
+        } elseif ($data1[$key] === $data2[$key]) {
+            return genDiffDataElement($key, "unchanged", $data1[$key]);
         } else {
-            $value1 = $data1[$key];
-            $value2 = $data2[$key];
-
-            if (isAssoc($value1) && isAssoc($value2)) {
-                return genDiffDataNode($key, genDiffData($value1, $value2));
-            } elseif ($data1[$key] === $data2[$key]) {
-                return genDiffDataElement($key, 0, $data1[$key]);
-            } else {
-                return genDiffDataElement($key, 2, $data2[$key], $data1[$key]);
-            }
+            return genDiffDataElement($key, "changed", $data2[$key], $data1[$key]);
         }
     }, $keys);
 }
 
-function genDiffDataNode(string $key, array $value): array
+function objectToArray(object $data): array
 {
-    return ['key' => $key, 'type' => 'node', 'children' => array_values($value)];
+    $arr = get_object_vars($data);
+    return array_map(fn ($item) => is_object($item) ? objectToArray($item) : $item, $arr);
 }
 
-function genDiffDataElement(string $key, int $action, mixed $value, mixed $valuePrev = null): array
+function genDiffDataNode(string $key, array $value): array
 {
     return [
         'key' => $key,
-        'type' => 'element',
-        'action' => $action,
+        'children' => $value
+    ];
+}
+
+function genDiffDataElement(string $key, string $type, mixed $value, mixed $valuePrev = null): array
+{
+    return [
+        'key' => $key,
+        'type' => $type,
         'value' => genDiffDataValue($value),
         'valuePrev' => genDiffDataValue($valuePrev)
     ];
@@ -67,24 +127,22 @@ function genDiffDataValue(mixed $value): mixed
 
     $keys = array_keys($value);
     return array_map(
-        fn ($item) => ['key' => $item, 'type' => 'value', 'value' => genDiffDataValue($value[$item])],
+        fn ($item) => [
+            'key' => $item,
+            'value' => genDiffDataValue($value[$item])
+        ],
         $keys
     );
 }
 
 function isNode(array $element): bool
 {
-    return array_key_exists("type", $element) && $element['type'] === 'node';
+    return array_key_exists("children", $element);
 }
 
 function isElement(array $element): bool
 {
-    return array_key_exists("type", $element) && $element['type'] === 'element';
-}
-
-function isComplexValue(array $element): bool
-{
-    return array_key_exists("type", $element) && $element['type'] === 'value';
+    return array_key_exists("type", $element);
 }
 
 function isAssoc(mixed $arr): bool
@@ -94,7 +152,7 @@ function isAssoc(mixed $arr): bool
     }
 
     $keys = array_keys($arr);
-    return Funct\Collection\some($keys, fn ($item) => !is_int($item));
+    return some($keys, fn ($item) => !is_int($item));
 }
 
 function getKey(array $diffNodeElement): string
@@ -115,21 +173,17 @@ function getChildren(array $diffNode): array
     return $diffNode["children"];
 }
 
-function getAction(array $diffElement): int
+function getAction(array $diffElement): string
 {
     if (!isElement($diffElement)) {
         throw new \Exception("Incorrect structure");
     }
 
-    return $diffElement["action"];
+    return $diffElement["type"];
 }
 
 function getValue(array $diffElement, bool $previous = false): mixed
 {
-    if (!isElement($diffElement) && !isComplexValue($diffElement)) {
-        return null;
-    }
-
     if ($previous === true) {
         return isElement($diffElement) ? $diffElement["valuePrev"] : null;
     }

@@ -2,38 +2,35 @@
 
 namespace Hexlet\Phpunit\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 use function Differ\Differ\genDiff;
 
 class GendiffTest extends TestCase
 {
-    public function testGenDiff(): void
+    #[DataProvider('genDiffDefaultProvider')]
+    public function testGenDiffDefault(string $filePath1, string $filePath2, string $expected): void
     {
-        $result1 = genDiff($this->getFixtureFullPath('file1.tree.json'), $this->getFixtureFullPath('file2.tree.json'));
-        $this->assertStringEqualsFile($this->getFixtureFullPath('expected1.stylish.txt'), $result1);
+        $result = genDiff($this->getFixtureFullPath($filePath1), $this->getFixtureFullPath($filePath2));
+        $this->assertStringEqualsFile($this->getFixtureFullPath($expected), $result);
+    }
 
-        $result2 = genDiff($this->getFixtureFullPath('file2.tree.json'), $this->getFixtureFullPath('file1.tree.json'));
-        $this->assertStringEqualsFile($this->getFixtureFullPath('expected2.stylish.txt'), $result2);
+    #[DataProvider('genDiffFormatProvider')]
+    public function testGenDiffFormat(string $filePath1, string $filePath2, string $format, string $expected): void
+    {
+        $file1 = $this->getFixtureFullPath($filePath1);
+        $file2 = $this->getFixtureFullPath($filePath2);
+        $result = genDiff($file1, $file2, $format);
+        $this->assertStringEqualsFile($this->getFixtureFullPath($expected), $result);
+    }
 
-        $result3 = genDiff($this->getFixtureFullPath('file4.json'), $this->getFixtureFullPath('file4.json'));
-        $this->assertEquals("{}", $result3);
-
-        $result4 = genDiff($this->getFixtureFullPath('file1.tree.yml'), $this->getFixtureFullPath('file2.tree.yml'));
-        $this->assertStringEqualsFile($this->getFixtureFullPath('expected1.stylish.txt'), $result4);
-
-        $result5 = genDiff($this->getFixtureFullPath('file1.tree.json'), $this->getFixtureFullPath('file2.tree.yml'));
-        $this->assertStringEqualsFile($this->getFixtureFullPath('expected1.stylish.txt'), $result5);
-
+    public function testGenDiffFormatJson(): void
+    {
         $file1 = $this->getFixtureFullPath('file1.tree.json');
         $file2 = $this->getFixtureFullPath('file2.tree.json');
-        $result6 = genDiff($file1, $file2, "plain");
-        $this->assertStringEqualsFile($this->getFixtureFullPath('expected1.plain.txt'), $result6);
-
-        $file1 = $this->getFixtureFullPath('file1.tree.json');
-        $file2 = $this->getFixtureFullPath('file2.tree.json');
-        $result7 = genDiff($file1, $file2, "json");
-        $this->assertJsonStringEqualsJsonFile($this->getFixtureFullPath('expected2.json.json'), $result7);
+        $result = genDiff($file1, $file2, "json");
+        $this->assertJsonStringEqualsJsonFile($this->getFixtureFullPath('expected1.json.json'), $result);
     }
 
     public function testExceptionMessageExtNotSupported()
@@ -56,7 +53,7 @@ class GendiffTest extends TestCase
 
     public function testExceptionMessageParsingNotImplemented()
     {
-        $this->expectExceptionMessage("Parsing *.txt files not implemented");
+        $this->expectExceptionMessage("Parsing TXT not implemented");
         genDiff($this->getFixtureFullPath('file1.tree.json'), $this->getFixtureFullPath('file1.txt'));
     }
 
@@ -76,5 +73,54 @@ class GendiffTest extends TestCase
     {
         $parts = [__DIR__, 'fixtures', $fixtureName];
         return realpath(implode('/', $parts));
+    }
+
+    public static function genDiffDefaultProvider(): array
+    {
+        return [
+            "json & json" => [
+                'file1.tree.json',
+                'file2.tree.json',
+                'expected1.stylish.txt'
+            ],
+            "json & json reverse" => [
+                'file2.tree.json',
+                'file1.tree.json',
+                'expected2.stylish.txt'
+            ],
+            "json & json empty" => [
+                'file4.json',
+                'file4.json',
+                "expected.empty.stylish.txt"
+            ],
+            "yaml & yaml" => [
+                'file1.tree.yml',
+                'file2.tree.yml',
+                'expected1.stylish.txt'
+            ],
+            "json & yaml" => [
+                'file1.tree.json',
+                'file2.tree.yml',
+                'expected1.stylish.txt'
+            ]
+        ];
+    }
+
+    public static function genDiffFormatProvider(): array
+    {
+        return [
+            "stylish" => [
+                'file1.tree.json',
+                'file2.tree.json',
+                'stylish',
+                'expected1.stylish.txt'
+            ],
+            "plain" => [
+                'file1.tree.json',
+                'file2.tree.json',
+                'plain',
+                'expected1.plain.txt'
+            ]
+        ];
     }
 }

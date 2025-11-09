@@ -9,7 +9,7 @@ use function Differ\Differ\getChildren;
 use function Differ\Differ\getAction;
 use function Differ\Differ\getValue;
 
-function format(array $diffData): string
+function render(array $diffData): string
 {
     if (count($diffData) === 0) {
         return "";
@@ -49,7 +49,7 @@ function formatElement(array $diffElement, string $nodeKey): string
     $valueStr = formatValue(getValue($diffElement));
     $valuePrevStr = formatValue(getValue($diffElement, true));
 
-    return getActionView(getAction($diffElement), $prefix, $valueStr, $valuePrevStr);
+    return getView(getAction($diffElement), $prefix, $valueStr, $valuePrevStr);
 }
 
 function formatValue(mixed $value): string
@@ -61,12 +61,12 @@ function formatValue(mixed $value): string
     }
 }
 
-function getActionView(int $action, string $key, string $value1, string $value2): string
+function getView(string $action, string $key, string $value1, string $value2): string
 {
     $arAction = [
-        1 => "Property '$key' was added with value: $value1",
-        -1 => "Property '$key' was removed",
-        2 => "Property '$key' was updated. From $value2 to $value1"
+        "added" => "Property '$key' was added with value: $value1",
+        "deleted" => "Property '$key' was removed",
+        "changed" => "Property '$key' was updated. From $value2 to $value1"
     ];
 
     return $arAction[$action] ?? '';

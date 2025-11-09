@@ -2,12 +2,7 @@
 
 namespace Differ\Formatters\JSON;
 
-function format(array $diffData): string
+function render(array $diffData): string
 {
-    $result = json_encode($diffData);
-    if ($result === false) {
-        throw new \Exception('Unexpected error');
-    }
-
-    return $result;
+    return json_encode($diffData, JSON_THROW_ON_ERROR);
 }

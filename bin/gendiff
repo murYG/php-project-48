@@ -29,7 +29,7 @@ Options:
 
 DOCOPT;
 
-$result = Docopt::handle($doc, array('version'=>'1.0'));
+$result = Docopt::handle($doc, ['version' => '1.0']);
 try {
 	$diff = genDiff($result['<firstFile>'], $result['<secondFile>'], $result['--format']);
 	print_r($diff . PHP_EOL);

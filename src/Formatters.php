@@ -2,14 +2,18 @@
 
 namespace Differ\Formatters;
 
+use function Differ\Formatters\stylish\render as renderStylish;
+use function Differ\Formatters\plain\render as renderPlain;
+use function Differ\Formatters\json\render as renderJson;
+
 function format(string $format, array $diffData): string
 {
-    $func = __NAMESPACE__ . "\\$format\\format";
-    if (!function_exists($func)) {
-        throw new \Exception("Unsupported format: $format");
-    }
-
-    return $func($diffData);
+    return match ($format) {
+        'stylish' => renderStylish($diffData),
+        'plain' => renderPlain($diffData),
+        'json' => renderJson($diffData),
+        default  => throw new \Exception("Unsupported format: $format")
+    };
 }
 
 function toString(mixed $value, string $symbol = "'"): string

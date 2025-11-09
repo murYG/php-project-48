@@ -14,7 +14,7 @@ const REPLACER_COUNT = 4;
 const LEFT_SHIFT = "  ";
 const LEFT_SHIFT_LENGTH = 2;
 
-function format(array $diffData): string
+function render(array $diffData): string
 {
     if (count($diffData) === 0) {
         return "{}";
@@ -51,7 +51,7 @@ function formatElement(array $diffElement, int $depth): string
     $valueStr = formatValue(getValue($diffElement), $depth + 1);
     $valuePrevStr = formatValue(getValue($diffElement, true), $depth + 1);
 
-    return getActionView(getAction($diffElement), getKey($diffElement), $valueStr, $valuePrevStr, $prefix);
+    return getView(getAction($diffElement), getKey($diffElement), $valueStr, $valuePrevStr, $prefix);
 }
 
 function formatValue(mixed $value, int $depth): string
@@ -74,13 +74,13 @@ function getPrefix(int $depth, int $shiftLen = 0, string $shift = ''): string
     return str_repeat(REPLACER, $depth * REPLACER_COUNT - $shiftLen) . $shift;
 }
 
-function getActionView(int $action, string $key, string $value1, string $value2, string $prefix): string
+function getView(string $action, string $key, string $value1, string $value2, string $prefix): string
 {
     $arAction = [
-        1 => "$prefix+ $key: $value1",
-        0 => "$prefix  $key: $value1",
-        -1 => "$prefix- $key: $value1",
-        2 => "$prefix- $key: $value2\n$prefix+ $key: $value1"
+        "added" => "$prefix+ $key: $value1",
+        "deleted" => "$prefix- $key: $value1",
+        "changed" => "$prefix- $key: $value2\n$prefix+ $key: $value1",
+        "unchanged" => "$prefix  $key: $value1"
     ];
 
     return $arAction[$action] ?? '';
