@@ -3,11 +3,6 @@
 namespace Differ\Formatters\Stylish;
 
 use function Differ\Formatters\toString;
-use function Differ\Differ\isElement;
-use function Differ\Differ\getKey;
-use function Differ\Differ\getChildren;
-use function Differ\Differ\getAction;
-use function Differ\Differ\getValue;
 
 const REPLACER = ' ';
 const REPLACER_COUNT = 4;
@@ -26,32 +21,30 @@ function render(array $diffData): string
 function stringifyDiff(array $value, int $depth): array
 {
     return array_reduce($value, function ($acc, $item) use ($depth) {
-        if (isElement($item)) {
+        if (array_key_exists("type", $item)) {
             return [...$acc, formatElement($item, $depth)];
         }
 
         $result = formatNode($item, $depth) . " {";
-
         $prefixPrevious = getPrefix($depth);
 
-        $children = getChildren($item);
-        return [...$acc, $result, ...stringifyDiff($children, $depth + 1), "$prefixPrevious}"];
+        return [...$acc, $result, ...stringifyDiff($item["children"], $depth + 1), "$prefixPrevious}"];
     }, []);
 }
 
 function formatNode(array $diffNode, int $depth): string
 {
-    return getPrefix($depth, LEFT_SHIFT_LENGTH, LEFT_SHIFT) . getKey($diffNode) . ":";
+    return getPrefix($depth, LEFT_SHIFT_LENGTH, LEFT_SHIFT) . $diffNode["key"] . ":";
 }
 
 function formatElement(array $diffElement, int $depth): string
 {
     $prefix = getPrefix($depth, LEFT_SHIFT_LENGTH);
 
-    $valueStr = formatValue(getValue($diffElement), $depth + 1);
-    $valuePrevStr = formatValue(getValue($diffElement, true), $depth + 1);
+    $valueStr = formatValue($diffElement["value"], $depth + 1);
+    $valuePrevStr = formatValue($diffElement["valuePrev"], $depth + 1);
 
-    return getView(getAction($diffElement), getKey($diffElement), $valueStr, $valuePrevStr, $prefix);
+    return getView($diffElement["type"], $diffElement["key"], $valueStr, $valuePrevStr, $prefix);
 }
 
 function formatValue(mixed $value, int $depth): string
@@ -64,8 +57,7 @@ function formatValue(mixed $value, int $depth): string
     $prefixPrevious = getPrefix($depth - 1);
 
     return "{\n" . array_reduce($value, function ($acc, $item) use ($depth, $prefixCurrent) {
-        $itemKey = getKey($item);
-        return $acc . "$prefixCurrent$itemKey: " . formatValue(getValue($item), $depth + 1) . "\n";
+        return $acc . "$prefixCurrent{$item["key"]}: " . formatValue($item['value'], $depth + 1) . "\n";
     }, "") . "$prefixPrevious}";
 }
 

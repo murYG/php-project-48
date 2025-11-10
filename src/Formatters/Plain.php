@@ -3,11 +3,6 @@
 namespace Differ\Formatters\Plain;
 
 use function Differ\Formatters\toString;
-use function Differ\Differ\isElement;
-use function Differ\Differ\getKey;
-use function Differ\Differ\getChildren;
-use function Differ\Differ\getAction;
-use function Differ\Differ\getValue;
 
 function render(array $diffData): string
 {
@@ -21,7 +16,7 @@ function render(array $diffData): string
 function stringifyDiff(array $value, int $depth, string $key = ''): array
 {
     return array_reduce($value, function ($acc, $item) use ($depth, $key) {
-        if (isElement($item)) {
+        if (array_key_exists("type", $item)) {
             $str = formatElement($item, $key);
             if ($str !== '') {
                 return [...$acc, $str];
@@ -31,25 +26,23 @@ function stringifyDiff(array $value, int $depth, string $key = ''): array
         }
 
         $result = $key . formatNode($item);
-
-        $children = getChildren($item);
-        return [...$acc, ...stringifyDiff($children, $depth + 1, $result)];
+        return [...$acc, ...stringifyDiff($item["children"], $depth + 1, $result)];
     }, []);
 }
 
 function formatNode(array $diffNode): string
 {
-    return getKey($diffNode) . ".";
+    return $diffNode["key"] . ".";
 }
 
 function formatElement(array $diffElement, string $nodeKey): string
 {
-    $prefix = $nodeKey . getKey($diffElement);
+    $prefix = $nodeKey . $diffElement["key"];
 
-    $valueStr = formatValue(getValue($diffElement));
-    $valuePrevStr = formatValue(getValue($diffElement, true));
+    $valueStr = formatValue($diffElement["value"]);
+    $valuePrevStr = formatValue($diffElement["valuePrev"]);
 
-    return getView(getAction($diffElement), $prefix, $valueStr, $valuePrevStr);
+    return getView($diffElement["type"], $prefix, $valueStr, $valuePrevStr);
 }
 
 function formatValue(mixed $value): string

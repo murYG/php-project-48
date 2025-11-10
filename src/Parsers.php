@@ -2,11 +2,8 @@
 
 namespace Differ\Parsers;
 
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
-
-use function Differ\Differ\getFileExtension;
-use function Differ\Differ\getFileContents;
-use function Differ\Differ\getFilePath;
 
 const SUPPORTED_TYPES = [
         'json' => 'JSON',
@@ -17,30 +14,20 @@ const SUPPORTED_TYPES = [
 
 function parse(array $fileData): object
 {
-    $fileType = SUPPORTED_TYPES[getFileExtension($fileData)] ?? '';
+    $fileType = SUPPORTED_TYPES[$fileData['extension']] ?? '';
     return match ($fileType) {
-        'JSON' => parseJSON($fileData),
-        'YAML' => parseYAML($fileData),
+        'JSON' => parseJSON($fileData['contents']),
+        'YAML' => parseYAML($fileData['contents']),
         default  => throw new \Exception("Parsing $fileType not implemented")
     };
 }
 
-function parseJSON(array $fileData): object
+function parseJSON(string $fileContents): object
 {
-    $result = json_decode(getFileContents($fileData));
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        throw new \Exception("Invalid JSON in " . getFilePath($fileData));
-    }
-
-    return $result;
+    return json_decode($fileContents, null, 512, JSON_THROW_ON_ERROR);
 }
 
-function parseYAML(array $fileData): object
+function parseYAML(string $fileContents): object
 {
-    $result = Yaml::parse(getFileContents($fileData), Yaml::PARSE_OBJECT_FOR_MAP);
-    if (!is_object($result)) {
-        throw new \Exception("Invalid YAML in " . getFilePath($fileData));
-    }
-
-    return $result;
+    return Yaml::parse($fileContents, Yaml::PARSE_OBJECT_FOR_MAP);
 }
