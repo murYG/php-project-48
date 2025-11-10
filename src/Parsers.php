@@ -24,7 +24,7 @@ function parse(array $fileData): object
 
 function parseJSON(string $fileContents): object
 {
-    return json_decode($fileContents, null, 512, JSON_THROW_ON_ERROR);
+    return json_decode($fileContents, false, 512, JSON_THROW_ON_ERROR);
 }
 
 function parseYAML(string $fileContents): object
