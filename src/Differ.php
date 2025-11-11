@@ -29,7 +29,7 @@ function getFileData(string $filePath): array
 
     $pathInfo = pathinfo($filePath);
     $extension = $pathInfo['extension'] ?? '';
-    if (!in_array($extension, SUPPORTED_TYPES)) {
+    if (!in_array($extension, SUPPORTED_TYPES, true)) {
         throw new \Exception("*.$extension files not supported");
     }
 
