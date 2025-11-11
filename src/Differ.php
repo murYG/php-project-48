@@ -40,8 +40,7 @@ function getFileData(string $filePath): array
 
     return [
         'extension' => $extension,
-        'contents' => $fileContents,
-        'path' => $filePath
+        'contents' => $fileContents
     ];
 }
 
