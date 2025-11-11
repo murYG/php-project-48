@@ -7,7 +7,7 @@ use function Funct\Collection\some;
 use function Differ\Parsers\parse;
 use function Differ\Formatters\format;
 
-use const Differ\Parsers\SUPPORTED_TYPES;
+const SUPPORTED_TYPES = ['json', 'yml', 'yaml', 'txt'];
 
 function genDiff(string $pathToFile1, string $pathToFile2, string $format = 'stylish'): string
 {
@@ -29,7 +29,7 @@ function getFileData(string $filePath): array
 
     $pathInfo = pathinfo($filePath);
     $extension = $pathInfo['extension'] ?? '';
-    if (!array_key_exists($extension, SUPPORTED_TYPES)) {
+    if (!in_array($extension, SUPPORTED_TYPES)) {
         throw new \Exception("*.$extension files not supported");
     }
 
@@ -58,15 +58,21 @@ function buildDiffTree(object $data1, object $data2): array
     return array_map(function ($key) use ($data1, $data2) {
         if (!property_exists($data1, $key)) {
             return buildDiffDataElement($key, "added", $data2->$key);
-        } elseif (!property_exists($data2, $key)) {
-            return buildDiffDataElement($key, "deleted", $data1->$key);
-        } elseif (is_object($data1->$key) && is_object($data2->$key)) {
-            return buildDiffDataNode($key, buildDiffTree($data1->$key, $data2->$key));
-        } elseif ($data1->$key === $data2->$key) {
-            return buildDiffDataElement($key, "unchanged", $data1->$key);
-        } else {
-            return buildDiffDataElement($key, "changed", $data2->$key, $data1->$key);
         }
+
+        if (!property_exists($data2, $key)) {
+            return buildDiffDataElement($key, "deleted", $data1->$key);
+        }
+
+        if (is_object($data1->$key) && is_object($data2->$key)) {
+            return buildDiffDataNode($key, buildDiffTree($data1->$key, $data2->$key));
+        }
+
+        if ($data1->$key === $data2->$key) {
+            return buildDiffDataElement($key, "unchanged", $data1->$key);
+        }
+
+        return buildDiffDataElement($key, "changed", $data2->$key, $data1->$key);
     }, $keys);
 }
 

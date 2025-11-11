@@ -28,7 +28,7 @@ class UnitTest extends TestCase
 
     public function testParsingNotImplemented()
     {
-        $this->expectExceptionMessage("Parsing TXT not implemented");
+        $this->expectExceptionMessage("Parsing txt not implemented");
         genDiff($this->getFixtureFullPath('file1.tree.json'), $this->getFixtureFullPath('file1.txt'));
     }
 

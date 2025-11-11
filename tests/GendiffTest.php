@@ -47,7 +47,7 @@ class GendiffTest extends TestCase
             ],
             "yaml files" => [
                 'file1.tree.yml',
-                'file2.tree.yml'
+                'file2.tree.yaml'
             ]
         ];
     }

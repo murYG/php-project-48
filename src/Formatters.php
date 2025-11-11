@@ -4,7 +4,7 @@ namespace Differ\Formatters;
 
 use function Differ\Formatters\Stylish\render as renderStylish;
 use function Differ\Formatters\Plain\render as renderPlain;
-use function Differ\Formatters\JSON\render as renderJson;
+use function Differ\Formatters\Json\render as renderJson;
 
 function format(string $format, array $diffData): string
 {

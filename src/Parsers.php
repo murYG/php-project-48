@@ -2,23 +2,14 @@
 
 namespace Differ\Parsers;
 
-use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
-
-const SUPPORTED_TYPES = [
-        'json' => 'JSON',
-        'yml' => 'YAML',
-        'yaml' => 'YAML',
-        'txt' => 'TXT'
-    ];
 
 function parse(array $fileData): object
 {
-    $fileType = SUPPORTED_TYPES[$fileData['extension']] ?? '';
-    return match ($fileType) {
-        'JSON' => parseJSON($fileData['contents']),
-        'YAML' => parseYAML($fileData['contents']),
-        default  => throw new \Exception("Parsing $fileType not implemented")
+    return match ($fileData['extension']) {
+        'json' => parseJSON($fileData['contents']),
+        'yml', 'yaml' => parseYAML($fileData['contents']),
+        default  => throw new \Exception("Parsing {$fileData['extension']} not implemented")
     };
 }
 

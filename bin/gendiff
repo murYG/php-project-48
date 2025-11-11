@@ -31,8 +31,8 @@ DOCOPT;
 
 $result = Docopt::handle($doc, ['version' => '1.0']);
 try {
-	$diff = genDiff($result['<firstFile>'], $result['<secondFile>'], $result['--format']);
-	print_r($diff . PHP_EOL);
+    $diff = genDiff($result['<firstFile>'], $result['<secondFile>'], $result['--format']);
+    print_r($diff . PHP_EOL);
 } catch (\Throwable $e) {
-	print_r($e->getMessage() . PHP_EOL);
+    print_r($e->getMessage() . PHP_EOL);
 }
