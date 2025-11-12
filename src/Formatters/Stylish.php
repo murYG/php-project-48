@@ -11,7 +11,7 @@ const LEFT_SHIFT_LENGTH = 2;
 
 function render(array $diffData): string
 {
-    if (count($diffData) === 0) {
+    if (empty($diffData)) {
         return "{}";
     }
 
