@@ -8,12 +8,6 @@ use function Differ\Differ\genDiff;
 
 class UnitTest extends TestCase
 {
-    public function testExtensionNotSupported()
-    {
-        $this->expectExceptionMessage("*.html files not supported");
-        genDiff($this->getFixtureFullPath('file1.tree.json'), $this->getFixtureFullPath('file1.html'));
-    }
-
     public function testFileNotFound()
     {
         $this->expectExceptionMessage("File " . $this->getFixtureFullPath('file22.json') . " not found");

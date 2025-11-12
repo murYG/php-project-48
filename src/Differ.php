@@ -7,8 +7,6 @@ use function Funct\Collection\some;
 use function Differ\Parsers\parse;
 use function Differ\Formatters\format;
 
-const SUPPORTED_TYPES = ['json', 'yml', 'yaml', 'txt'];
-
 function genDiff(string $pathToFile1, string $pathToFile2, string $format = 'stylish'): string
 {
     $fileData1 = getFileData($pathToFile1);
@@ -28,11 +26,8 @@ function getFileData(string $filePath): array
     }
 
     $pathInfo = pathinfo($filePath);
-    $extension = $pathInfo['extension'] ?? '';
-    if (!in_array($extension, SUPPORTED_TYPES, true)) {
-        throw new \Exception("*.$extension files not supported");
-    }
 
+    $extension = isset($pathInfo['extension']) ? mb_strtolower($pathInfo['extension']) : '';
     $fileContents = file_get_contents($filePath);
     if ($fileContents === false) {
         throw new \Exception('Unexpected error');
