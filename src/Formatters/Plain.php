@@ -6,7 +6,7 @@ use function Differ\Formatters\toString;
 
 function render(array $diffData): string
 {
-    if (empty($diffData)) {
+    if (count($diffData) === 0) {
         return "";
     }
 
